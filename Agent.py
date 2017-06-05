@@ -1,6 +1,7 @@
 import zmq
 import thread
 import numpy as np
+from optparse import OptionParser
 
 class Agent(object):
     def __init__(self, observation_space, action_space):
@@ -11,7 +12,6 @@ class Agent(object):
         self.observation_space = observation_space
         self.action_space = action_space
         self.reward = 0
-
         
         thread.start_new_thread(self.commandThread,(self.context,))
         thread.start_new_thread(self.stepThread,(self.context,))
@@ -69,8 +69,31 @@ class Agent(object):
         if done:
             print "Acumulated reward: %i" % self.reward
         action = self.action_space.sample()
-        return action
+        return  action
 
     def close(self):
         self.recieve_commands = False
         self.recieve_step = False
+
+if __name__ == "__main__":
+    # run agent as standalone
+
+    parser = OptionParser()
+
+    parser.add_option("--IP", dest="ip", help="Set IP to listen on", default="localhost")
+    parser.add_option("--PORT", dest="port", help="Set Port to listen on", 
+            default="12345")
+    parser.add_option("-v", dest="verbose", action="store_true",
+            help="Set logging level to DEBUG", 
+            default=False)
+    parser.add_option("-q", dest="quiet", action="store_true",
+            help="Set logging level to CRITICAL",
+            default=False)
+    parser.add_option("--VERSION", dest="version", 
+            help="Print the current version, then exit", default=False)
+
+    (options, args) = parser.parse_args()
+
+    print options
+    if options.verbose and options.quiet:
+        parser.error("-v and -q are mutually exclusive")
