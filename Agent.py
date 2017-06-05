@@ -2,58 +2,51 @@ import zmq
 import thread
 import numpy as np
 from optparse import OptionParser
+from logging import Logger
 
 class Agent(object):
-    def __init__(self, observation_space, action_space):
+    def __init__(self, socket_ip):
         self.context = zmq.Context()
         self.recieve_commands = True
-        self.recieve_step = True
+        self.socket_ip = socket_ip
 
         self.observation_space = observation_space
         self.action_space = action_space
         self.reward = 0
         
         thread.start_new_thread(self.commandThread,(self.context,))
-        thread.start_new_thread(self.stepThread,(self.context,))
 
     def commandThread(self, context):
         socket = context.socket(zmq.REP)
-        socket.bind("tcp://127.0.0.1:12346")
+        socket.bind(self.socket_ip)
 
         while self.recieve_commands:
             cmd = socket.recv_json()
             cmd_name = cmd[0]
+            msg = "OK"
             
             if cmd_name == "seed":
                 self.seed(cmd[1])
-                msg = "OK"
             elif cmd_name == "reset":
                 action =  self.reset(cmd[1])
                 msg = action
             elif cmd_name == "close":
                 self.close()
-                msg="OK"
+            elif cmd_name == "step":
+                msg = list()
+
+                observation = np.asarray(msg[0])
+                reward = msg[1]
+                done = msg[2]
+
+                action = self.step(observation, reward, done)
+                msg.append(action)
+            elif cmd_name == "setObservation":
+                self.observation_space = msg[1]
+            elif cmd_name == "setActions":
+                self.action_space = msg[1]
 
             socket.send_json(msg)
-
-        socket.close()
-
-    def stepThread(self, context):
-        socket = context.socket(zmq.REP)
-        socket.bind("tcp://127.0.0.1:12345")
-
-        while self.recieve_step:
-            msg = socket.recv_json()
-            return_msg = list()
-
-            observation = np.asarray(msg[0])
-            reward = msg[1]
-            done = msg[2]
-
-            action = self.step(observation, reward, done)
-            return_msg.append(action)
-
-            socket.send_json(action)
 
         socket.close()
 
@@ -73,7 +66,6 @@ class Agent(object):
 
     def close(self):
         self.recieve_commands = False
-        self.recieve_step = False
 
 if __name__ == "__main__":
     # run agent as standalone
@@ -95,5 +87,23 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     print options
+    if options.version:
+        return "0.0.1"
+    
     if options.verbose and options.quiet:
         parser.error("-v and -q are mutually exclusive")
+
+    socket_ip = "tcp://%s:%s" % (options.ip, options.port)
+
+    agent = Agent(socket_ip)
+    
+    alive = True
+    while alive:
+        try:
+            sleep(0.1)
+        except KeyboardInterrupt:
+            alive = False
+
+    
+
+    
