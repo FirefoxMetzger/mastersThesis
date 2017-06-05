@@ -1,5 +1,8 @@
 import random
+import json
 import gym
+import zmq
+import thread
 from Agent import Agent
 
 random.seed(19930802)
@@ -10,6 +13,13 @@ random_seed_agent = [random.random() for s in range(1,num_trials+1)]
 
 #setup
 max_steps = 10000
+
+context = zmq.Context()
+action_socket = context.socket(zmq.REQ)
+action_socket.bind("tcp://127.0.0.1:12345")
+
+command_socket = context.socket(zmq.REQ)
+command_socket.connect("tcp://127.0.0.1:12346")
 
 env_name="CartPole-v0"
 env = gym.make(env_name)
@@ -32,8 +42,14 @@ for trial in range(1,num_trials+1):
         [observation, reward, done, info] = env.step(action)
         env.render()
 
+        msg = list()
+        msg.append(observation.tolist())
+        msg.append(reward)
+        msg.append(done)
+
         #update agent
-        action = agent.step(observation, reward, done)
+        action_socket.send_json(msg)
+        action = action_socket.recv_json()
 
 env.close()
 agent.close()
