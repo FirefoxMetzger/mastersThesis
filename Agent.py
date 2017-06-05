@@ -13,31 +13,34 @@ class Agent(object):
         self.reward = 0
 
         
-        #thread.start_new_thread(self.commandThread,(self.context,))
+        thread.start_new_thread(self.commandThread,(self.context,))
         thread.start_new_thread(self.stepThread,(self.context,))
 
     def commandThread(self, context):
-        socket = context.socket(zmq.REQ)
-        socket.connect("tcp://127.0.0.1:12346")
+        socket = context.socket(zmq.REP)
+        socket.bind("tcp://127.0.0.1:12346")
 
         while self.recieve_commands:
             cmd = socket.recv_json()
             cmd_name = cmd[0]
             
             if cmd_name == "seed":
-                self.seed(int(cmd[1]))
+                self.seed(cmd[1])
+                msg = "OK"
             elif cmd_name == "reset":
-                self.reset(cmd[1])
+                action =  self.reset(cmd[1])
+                msg = action
             elif cmd_name == "close":
                 self.close()
+                msg="OK"
 
-            socket.send_json("OK")
+            socket.send_json(msg)
 
         socket.close()
 
     def stepThread(self, context):
         socket = context.socket(zmq.REP)
-        socket.connect("tcp://127.0.0.1:12345")
+        socket.bind("tcp://127.0.0.1:12345")
 
         while self.recieve_step:
             msg = socket.recv_json()
@@ -52,7 +55,7 @@ class Agent(object):
 
             socket.send_json(action)
 
-        socket.disconnect("tcp://127.0.0.1:12345")
+        socket.close()
 
     def seed(self, seed):
         pass

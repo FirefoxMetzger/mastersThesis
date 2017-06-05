@@ -1,8 +1,6 @@
 import random
-import json
 import gym
 import zmq
-import thread
 from Agent import Agent
 
 random.seed(19930802)
@@ -16,7 +14,7 @@ max_steps = 10000
 
 context = zmq.Context()
 action_socket = context.socket(zmq.REQ)
-action_socket.bind("tcp://127.0.0.1:12345")
+action_socket.connect("tcp://127.0.0.1:12345")
 
 command_socket = context.socket(zmq.REQ)
 command_socket.connect("tcp://127.0.0.1:12346")
@@ -34,8 +32,18 @@ for trial in range(1,num_trials+1):
     done = False
 
     #reset agent
-    agent.seed(random_seed_agent[trial-1])
-    action = agent.reset(observation)
+    cmd = list()
+    cmd.append("seed")
+    cmd.append(random_seed_agent[trial-1])
+    command_socket.send_json(cmd)
+    command_socket.recv_json()
+
+    cmd = list()
+    cmd.append("reset")
+    cmd.append(observation.tolist())
+    
+    command_socket.send_json(cmd)
+    action = command_socket.recv_json()
 
     while not done:
         # update environment
@@ -52,4 +60,8 @@ for trial in range(1,num_trials+1):
         action = action_socket.recv_json()
 
 env.close()
-agent.close()
+
+msg = list()
+msg.append("close")
+command_socket.send_json(msg)
+command_socket.recv_json()
