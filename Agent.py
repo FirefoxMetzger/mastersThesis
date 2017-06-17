@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     print options
     if options.version:
-        return "0.0.1"
+        print "0.0.1"
     
     if options.verbose and options.quiet:
         parser.error("-v and -q are mutually exclusive")
