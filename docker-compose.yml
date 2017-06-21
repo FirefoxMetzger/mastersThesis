@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+    rlworker:
+        image: rlworker
+        replicas: 3
+        environment:
+            - TASK_ADDRESS=rldistributor:5000
+            - RESULT_ADDRESS=rlreceiver:6000
+        deploy:
+            mode: replicated
+            replicas: 3
+    rldistributor:
+        image: rldistributor
+        environment:
+            - TASK_ADDRESS=*:5000
+    rlreceiver:
+        image: rlreceiver
+        environment:
+            - RESULT_ADDRESS=*:6000
