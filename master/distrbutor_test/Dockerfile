@@ -6,6 +6,6 @@ RUN pip install -r Requirements.txt
 
 ENV LOGGING_LEVEL=DEBUG
 
-ENV TASK_ADDRESS=127.0.0.1:5000
+ENV TASK_ADDRESS=*:5000
 
 CMD ["python", "test.py"]

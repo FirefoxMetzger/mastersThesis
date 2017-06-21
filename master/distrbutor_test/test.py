@@ -29,6 +29,7 @@ for idx in range(0,1000):
 
 # setup sockets
 task_address = "tcp://" + os.environ["TASK_ADDRESS"]
+logger.debug("Address set to: %s" % task_address)
 task_server = context.socket(zmq.REP)
 task_server.setsockopt(zmq.LINGER, 2000)
 task_server.bind(task_address)

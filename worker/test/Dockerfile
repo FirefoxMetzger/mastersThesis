@@ -8,7 +8,7 @@ RUN rm Requirements.txt
 
 ENV LOGGING_LEVEL=DEBUG
 
-ENV TASK_ADDRESS=localhost:5000
-ENV RESULT_ADDRESS=localhost:6000
+ENV TASK_ADDRESS=127.0.0.1:5000
+ENV RESULT_ADDRESS=127.0.0.1:6000
 
 CMD ["python", "test_worker.py"]
