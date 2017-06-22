@@ -1,20 +1,28 @@
-version: "2"
+version: "3"
 
 services:
-    rlworker:
-        image: rlworker
-        replicas: 3
+    worker:
+        image: 192.168.0.8:5000/rlworker
         environment:
-            - TASK_ADDRESS=rldistributor:5000
-            - RESULT_ADDRESS=rlreceiver:6000
+            - TASK_ADDRESS=distributor:5000
+            - RESULT_ADDRESS=receiver:6000
         deploy:
-            mode: replicated
-            replicas: 3
-    rldistributor:
-        image: rldistributor
+            replicas: 4
+    distributor:
+        image: 192.168.0.8:5000/rldistributor
         environment:
             - TASK_ADDRESS=*:5000
-    rlreceiver:
-        image: rlreceiver
+    receiver:
+        image: 192.168.0.8:5000/rlreceiver
         environment:
             - RESULT_ADDRESS=*:6000
+    mysql:
+        image: 192.168.0.8:5000/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=password
+        volumes:
+            - /home/docker/mysql:/var/lib/mysql
+        deploy:
+            placement:
+                constraints:
+                    - node.labels.has_sql == true
