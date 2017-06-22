@@ -20,12 +20,15 @@ q = Queue.PriorityQueue(-1)
 context = zmq.Context()
 
 # fill queue with stuff
-for idx in range(0,1000):
-    experiment = dict()
-    experiment["a"] = idx
-    experiment["b"] = 5
+def refill_queue():
+    for idx in range(0,random.randint(0,3000)):
+        experiment = dict()
+        experiment["a"] = idx
+        experiment["b"] = 5
 
-    q.put((random.randint(0,500),experiment))
+        q.put((random.randint(0,500),experiment))
+
+refill_queue()
 
 # setup sockets
 task_address = "tcp://" + os.environ["TASK_ADDRESS"]
@@ -47,6 +50,7 @@ try:
                 ret_msg = q.get_nowait()[1]
             except Queue.Empty:
                 ret_msg = "no work"
+                refill_queue()
         else:
             ret_msg = "not understood"
 
