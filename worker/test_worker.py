@@ -4,6 +4,7 @@ import os
 import thread
 import time
 import sys
+import gym
 
 # setup logger
 logger = logging.getLogger()
@@ -31,6 +32,11 @@ result_server.connect(result_address)
 logger.info("Connected to %s to post results" % result_address)
 
 def solve_complicated_experiment(experiment):
+    env = gym.make('CartPole-v0')
+    observation = env.reset()
+    for _ in range(1000):
+        env.render()
+        [observation, reward, done, info] = env.step(env.action_space.sample())
     result = experiment["a"] + experiment["b"]
     return result
 
