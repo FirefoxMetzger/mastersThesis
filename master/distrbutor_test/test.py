@@ -1,4 +1,6 @@
 import zmq
+import peewee
+import playhouse.db_url
 import logging
 import Queue
 import os
@@ -15,18 +17,34 @@ logger.addHandler(handler)
 logger.setLevel(os.environ["LOGGING_LEVEL"])
 logger.debug("Set logging level to %s" % os.environ["LOGGING_LEVEL"])
 
+# connect to database
+ip = os.environ["MYSQL_ADDRESS"]
+db = playhouse.db_url.connect(ip)
+logger.info("Connected to Database: %s" % ip)
+
+#debugging -- create the database
+class Experiment(peewee.Model):
+    a = peewee.DoubleField()
+    b = peewee.DoubleField()
+    result = peewee.DoubleField(null=True)
+    last_modified = peewee.TimestampField()
+    class Meta:
+        database = db
+
+if not Experiment.table_exists:
+    db.create_tables([Experiment])
+
+for idx in range(0,1000):
+    foo = Experiment.create(a=idx,b=random.random()*500)
+
 # local variables
 q = Queue.PriorityQueue(-1)
 context = zmq.Context()
 
 # fill queue with stuff
 def refill_queue():
-    for idx in range(0,random.randint(0,3000)):
-        experiment = dict()
-        experiment["a"] = idx
-        experiment["b"] = 5
-
-        q.put((random.randint(0,500),experiment))
+    for idx in Experiment.select().where(Experiment.result.is_null()):
+        q.put((random.randint(0,500),Experiment))
 
 refill_queue()
 
@@ -54,7 +72,7 @@ try:
         else:
             ret_msg = "not understood"
 
-        logger.info("Sending reply: %s" % ret_msg)
+        logger.info("Sending experiment: %s" % ret_msg)
         task_server.send_json(ret_msg)
 except KeyboardInterrupt:
     logger.info("Keyboard interrupt. Shutting down.")
