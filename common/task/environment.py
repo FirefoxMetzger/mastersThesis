@@ -9,7 +9,15 @@ class Environment(sql_base):
     def __init__(self, *args, **kwargs):
         super(Environment, self).__init__(*args, **kwargs)
         
+        if self.name is None:
+            self.env = None
+        else:
+            self.env = gym.make(self.name)
+    @classmethod
+    def get(self, cls, *query, **kwargs):
+        self = super(Environment, self).get(cls, *query, **kwargs)
         self.env = gym.make(self.name)
+        return self
 
     def seed(self, seed):
         self.env.seed(seed)
@@ -19,8 +27,8 @@ class Environment(sql_base):
         return obs
 
     def step(self, action):
-        [observation, reward, done, info] = self.env.step(action)
-        return (observation, reward, done)
+        observation, reward, done, info = self.env.step(action)
+        return (observation, reward, done, info)
         
     def render(self):
         self.env.render()
@@ -33,7 +41,7 @@ class Environment(sql_base):
         self.env = gym.make(env_name)
 
     def getObservations(self):
-        return self.env.ObservationSpace
+        return self.env.observation_space
 
     def getActions(self):
-        return self.env.ActionSpace
+        return self.env.action_space
