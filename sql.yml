@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+    sql:
+        image: mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=password
+        ports:
+            - 3306:3306
+        volumes:
+            - /home/docker/mysql:/var/lib/mysql
+    myadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            - PMA_HOST=sql 
+        ports:
+            - 8080:80
