@@ -4,26 +4,22 @@ services:
     worker:
         image: 192.168.0.8:5000/worker
         environment:
-            - PYTHONPATH=/usr/local/gym
-            - TASK_ADDRESS=distributor:5000
-            - RESULT_ADDRESS=receiver:6000
-        deploy:
-            replicas: 1
+            - QUEUE_ADDRESS=tcp://distributor:5000
+            - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
     distributor:
         image: 192.168.0.8:5000/rldistributor
         environment:
             - TASK_ADDRESS=*:5000
-    receiver:
-        image: 192.168.0.8:5000/rlreceiver
-        environment:
-            - RESULT_ADDRESS=*:6000
     mysql:
         image: 192.168.0.8:5000/mysql
         environment:
             - MYSQL_ROOT_PASSWORD=password
         volumes:
             - /home/docker/mysql:/var/lib/mysql
-        deploy:
-            placement:
-                constraints:
-                    - node.labels.has_sql == true
+            
+    myadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            - PMA_HOST=mysql 
+        ports:
+            - 8080:80
