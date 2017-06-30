@@ -16,8 +16,7 @@ services:
         environment:
             - MYSQL_ROOT_PASSWORD=password
         volumes:
-            - /home/docker/mysql:/var/lib/mysql
-            
+            - /home/docker/mysql:/var/lib/mysql       
     myadmin:
         image: phpmyadmin/phpmyadmin
         environment:

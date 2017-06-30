@@ -2,20 +2,16 @@ version: "3"
 
 services:
     worker:
-        image: 192.168.0.8:5000/rlworker
+        image: 192.168.0.8:5000/worker
         environment:
-            - TASK_ADDRESS=distributor:5000
-            - RESULT_ADDRESS=receiver:6000
+            - TASK_ADDRESS=tcp://distributor:5000
+            - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
         deploy:
             replicas: 4
     distributor:
-        image: 192.168.0.8:5000/rldistributor
+        image: 192.168.0.8:5000/distributor
         environment:
-            - TASK_ADDRESS=*:5000
-    receiver:
-        image: 192.168.0.8:5000/rlreceiver
-        environment:
-            - RESULT_ADDRESS=*:6000
+            - TASK_ADDRESS=tcp://*:5000
     mysql:
         image: 192.168.0.8:5000/mysql
         environment:
@@ -26,3 +22,9 @@ services:
             placement:
                 constraints:
                     - node.labels.has_sql == true
+    myadmin:
+        image: 192.168.0.8:5000/phpmyadmin
+        environment:
+            - PMA_HOST=mysql
+        ports:
+            - 8080:80
