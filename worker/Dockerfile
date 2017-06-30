@@ -1,8 +1,12 @@
 FROM quay.io/openai/gym:latest
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/gym
 
+RUN sudo apt-get update && \
+    apt-get install libmysqlclient-dev -y
+
 WORKDIR /app
-COPY . /app
+COPY worker/ /app
+COPY common/ /app/common
 RUN pip install -r Requirements.txt
 RUN rm Requirements.txt
 
