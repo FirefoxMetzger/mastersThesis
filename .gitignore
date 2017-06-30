@@ -1,2 +1,3 @@
 *.pyc
+master/distrbutor_test/common
 worker/common
