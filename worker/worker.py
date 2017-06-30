@@ -47,7 +47,7 @@ class Worker(object):
                 else:
                     self.logger.debug("Fetching experiment with ID: %s" % experiment_id)
                     
-                    exp = Experiment.get(Experiment.id == 1)#experiment_id)
+                    exp = Experiment.get(Experiment.id == experiment_id)
                     exp.setup()
                     exp.run()
                     self.logger.debug("Finished Task %s" % experiment_id)
