@@ -7,6 +7,8 @@ import os
 import sys
 import random
 
+from common.task.experiment import Experiment
+
 # setup logger
 logger = logging.getLogger()
 handler = logging.StreamHandler()
@@ -17,39 +19,19 @@ logger.addHandler(handler)
 logger.setLevel(os.environ["LOGGING_LEVEL"])
 logger.debug("Set logging level to %s" % os.environ["LOGGING_LEVEL"])
 
-# connect to database
-ip = os.environ["MYSQL_ADDRESS"]
-db = playhouse.db_url.connect(ip)
-logger.info("Connected to Database: %s" % ip)
-
-#debugging -- create the database
-class Experiment(peewee.Model):
-    a = peewee.DoubleField()
-    b = peewee.DoubleField()
-    result = peewee.DoubleField(null=True)
-    last_modified = peewee.TimestampField()
-    class Meta:
-        database = db
-
-if not Experiment.table_exists:
-    db.create_tables([Experiment])
-
-for idx in range(0,1000):
-    foo = Experiment.create(a=idx,b=random.random()*500)
-
 # local variables
 q = Queue.PriorityQueue(-1)
 context = zmq.Context()
 
 # fill queue with stuff
 def refill_queue():
-    for idx in Experiment.select().where(Experiment.result.is_null()):
-        q.put((random.randint(0,500),Experiment))
+    for experiment in Experiment.select():
+        q.put( (random.randint(0,500),experiment.id) )
 
 refill_queue()
 
 # setup sockets
-task_address = "tcp://" + os.environ["TASK_ADDRESS"]
+task_address = os.environ["QUEUE_ADDRESS"]
 logger.debug("Address set to: %s" % task_address)
 task_server = context.socket(zmq.REP)
 task_server.setsockopt(zmq.LINGER, 2000)
