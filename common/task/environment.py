@@ -2,6 +2,7 @@ import peewee
 from common.db_base import sql_base
 import zmq
 import gym
+import json
 
 class Environment(sql_base):
     name = peewee.CharField(max_length=255)
@@ -13,21 +14,41 @@ class Environment(sql_base):
             self.env = None
         else:
             self.env = gym.make(self.name)
+            
+        self.context = None
+        self.pub = None
+        
     @classmethod
     def get(self, cls, *query, **kwargs):
         self = super(Environment, self).get(cls, *query, **kwargs)
         self.env = gym.make(self.name)
         return self
+        
+    def set_context(self, context):
+        self.context = context
+        self.pub = context.socket(zmq.PUB)
+        self.pub.connect("inproc://environment")
+        
 
     def seed(self, seed):
         self.env.seed(seed)
 
     def reset(self):
+        if self.context is None:
+            raise RuntimeError("Initialize context before calling reset()")
+        
         obs = self.env.reset()
+        msg = "reset"
+        self.pub.send_multipart(["reset", msg])
         return obs
 
     def step(self, action):
+        if self.context is None:
+            raise RuntimeError("Initialize context before calling step()")
         observation, reward, done, info = self.env.step(action)
+        
+        msg = json.dumps((reward, done, info))
+        self.pub.send_multipart(["step", msg])
         return (observation, reward, done, info)
         
     def render(self):
@@ -35,10 +56,6 @@ class Environment(sql_base):
 
     def close(self):
         self.env.close()
-
-    def load(self, env_name):
-        self.env_name = env_name
-        self.env = gym.make(env_name)
 
     def getObservations(self):
         return self.env.observation_space

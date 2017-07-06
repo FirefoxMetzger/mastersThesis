@@ -1,14 +1,24 @@
 import peewee
 import random
 from common.db_base import sql_base
+#from common.agent.generic_agent import RandomAgent
 
 class Agent(sql_base):
     name = peewee.CharField(max_length=255)
     
     def __init__(self, *args, **kwargs):
         super(Agent, self).__init__(*args, **kwargs)
-        self.random = random.Random()
-        self.env = None
+        
+        if self.name is None:
+            self.agent = None
+        else:
+            self.load_agent(self.name)
+        
+    @classmethod
+    def get(self, cls, *query, **kwargs):
+        self = super(Agent, self).get(cls, *query, **kwargs)
+        self.load_agent(self.name)
+        return self
         
     def seed(self, seed):
         self.random.seed(seed)
@@ -27,3 +37,9 @@ class Agent(sql_base):
         while not done:
             action = self.env.getActions().sample()
             a, b, done, d = self.env.step(action)
+    
+    def load_agent(self, name):
+        if name == "random":
+            self.agent = RandomAgent()
+        else:
+            raise RuntimeError("Agent unknown.")
