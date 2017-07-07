@@ -25,13 +25,6 @@ class EventPublisher(threading.Thread):
         
         # setup logger
         self.logger = logging.getLogger()
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-                '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-        self.logger.setLevel("DEBUG")
-        
         
         # subscribe to internal events
         self.sub = context.socket(zmq.SUB)
@@ -62,6 +55,7 @@ class EventPublisher(threading.Thread):
             if self.rep in sock:
                 cmd, msg = self.rep.recv_multipart()
                 self.handle_command_message(cmd, msg)
+        self.logger.debug("Event Queue is exiting")
                 
     def handle_communication_message(self, topic, msg):
         if topic == "experiment":
@@ -113,7 +107,7 @@ class EventPublisher(threading.Thread):
     def reset_steps(self):
         self.steps = 0
                     
-    def handle_command_message(self, topic, msg):
+    def handle_command_message(self, cmd, msg):
         if cmd == "stop":
             self.process_another_message = False
             self.rep.send("OK")

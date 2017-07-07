@@ -27,25 +27,17 @@ class Worker(object):
         
         # setup queue communication
         self.context = zmq.Context()
-
-        # queue communication
-        self.task_address = queue_address
-        self.task_server = self.context.socket(zmq.REQ)
-        self.task_server.setsockopt(zmq.LINGER,1)
-        self.task_server.connect(queue_address)
-        self.logger.info("Connected to %s to get work." % queue_address)
-
-        
+    
         # threads
-        self.event_queue = EventPublisher(self.context, queue_address)
-        self.event_queue_req = zmq.socket(zmq.REQ)
-        self.event.queue_req.bind("inproc://logging_control")
+        self.event_queue = EventPublisher(self.context)
+        self.event_queue_req = self.context.socket(zmq.REQ)
+        self.event_queue_req.bind("inproc://logging_control")
         
-        self.loop = WorkerLoop(self.context)
-        self.loop_req = zmq.socket(zmq.REQ)
+        self.loop = WorkerLoop(self.context, queue_address)
+        self.loop_req = self.context.socket(zmq.REQ)
         self.loop_req.bind("inproc://loop_control")
         
-    def start():
+    def start(self):
         self.logger.info("Starting worker threads")
 
         self.logger.debug("Start event queue")
@@ -54,11 +46,11 @@ class Worker(object):
         self.logger.debug("Start main loop")
         self.loop.start()
     
-    def stop():
+    def stop(self):
         self.logger.info("Stopping threads")
         multi_msg = ["stop", ""]
         self.event_queue_req.send_multipart(multi_msg)
-        self.loop.req.send_multipart(multi_msg)
+        self.loop_req.send_multipart(multi_msg)
         self.logger.info("Shutting down")
             
         
