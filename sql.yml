@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-    sql:
+    mysql:
         image: mysql
         environment:
             - MYSQL_ROOT_PASSWORD=password
@@ -9,9 +9,16 @@ services:
             - 3306:3306
         volumes:
             - /home/docker/mysql:/var/lib/mysql
+        networks:
+            - default
+            - swarm
     myadmin:
         image: phpmyadmin/phpmyadmin
         environment:
-            - PMA_HOST=sql 
+            - PMA_HOST=mysql 
         ports:
             - 8080:80
+
+networks:
+    swarm:
+        driver: overlay
