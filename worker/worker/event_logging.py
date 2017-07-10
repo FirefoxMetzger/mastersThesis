@@ -2,6 +2,8 @@ import threading
 import zmq
 import logging
 import os
+import json
+import peewee
 
 from common.result.step_reward import StepReward
 from common.task.experiment import Experiment
@@ -43,6 +45,7 @@ class EventPublisher(threading.Thread):
         self.poller.register(self.rep, zmq.POLLIN)
 
     def run(self):
+        self.logger.debug("Event Queue listening for messages")
         while self.process_another_message:
             sock = dict(self.poller.poll(100))
             
@@ -59,12 +62,13 @@ class EventPublisher(threading.Thread):
                 
     def handle_communication_message(self, topic, msg):
         if topic == "experiment":
+            self.logger.debug("A new experiment has been created")
             self.experiment_id = msg
             self.experiment = Experiment.get(Experiment.id == self.experiment_id)
             
             self.reset_episodes()
             # broadcast new experiment??
-            logger.info("Now broadcasting experiment %d" % msg)
+            self.logger.info("Now broadcasting experiment %s" % msg)
             
         elif topic == "episode":
             if self.experiment_id is None:
@@ -79,7 +83,7 @@ class EventPublisher(threading.Thread):
             self.reset_steps()
             
         elif topic == "step":
-            current_step += 1
+            self.steps += 1
             msg = json.loads(msg)
             
             result = dict()
@@ -89,7 +93,11 @@ class EventPublisher(threading.Thread):
             result["step"] = self.steps
             result["reward"] = msg[0]
             
-            StepReward.create(**result)
+            try:
+                StepReward.create(**result)
+            except peewee.IntegrityError:
+                self.logger.info("Step already in the database " + 
+                    "-- should have been updated")
             # eventually broadcast
             
     def _experiment(self, experiment):

@@ -10,8 +10,8 @@ RUN rm Requirements.txt
 
 ENV LOGGING_LEVEL=DEBUG
 
-ENV TASK_ADDRESS=127.0.0.1:5000
-ENV RESULT_ADDRESS=127.0.0.1:6000
+ENV QUEUE_ADDRESS=tcp://127.0.0.1:5000
+ENV DB_ADDRESS=mysql://root:password@127.0.0.1/reinforcement_learning
 
 COPY worker/ /app
 COPY common/ /app/common
