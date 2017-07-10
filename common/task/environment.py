@@ -27,7 +27,7 @@ class Environment(sql_base):
     def set_context(self, context):
         self.context = context
         self.pub = context.socket(zmq.PUB)
-        self.pub.connect("inproc://environment")
+        self.pub.connect("inproc://experiment_events")
         
 
     def seed(self, seed):
@@ -38,7 +38,7 @@ class Environment(sql_base):
             raise RuntimeError("Initialize context before calling reset()")
         
         obs = self.env.reset()
-        msg = "reset"
+        msg = ""
         self.pub.send_multipart(["reset", msg])
         return obs
 

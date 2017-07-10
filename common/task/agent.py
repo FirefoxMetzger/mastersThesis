@@ -1,7 +1,7 @@
 import peewee
 import random
 from common.db_base import sql_base
-#from common.agent.generic_agent import RandomAgent
+from common.agents import RandomAgent
 
 class Agent(sql_base):
     name = peewee.CharField(max_length=255)
@@ -21,22 +21,16 @@ class Agent(sql_base):
         return self
         
     def seed(self, seed):
-        self.random.seed(seed)
+        self.agent.seed(seed)
         
     def set_environment(self, env):
-        self.env = env
+        self.agent.set_environment(env)
         
     def reset(self, observation):
-        return self.env.getActions().sample()
+        return self.agent.reset(observation)
         
     def train_episode(self):
-        if self.env is None:
-            raise RuntimeError("Environment not defined")
-        
-        done = False
-        while not done:
-            action = self.env.getActions().sample()
-            a, b, done, d = self.env.step(action)
+        self.agent.train_episode()
     
     def load_agent(self, name):
         if name == "random":
