@@ -20,20 +20,11 @@ class EventPublisher(threading.Thread):
         
         self.process_another_message = True
         
-        self.experiment_id = None
-        self.episodes = 0
-        self.resets = 0
-        self.steps = 0
-        
         # setup logger
         self.logger = logging.getLogger()
         
         # subscribe to internal events
-        self.sub = context.socket(zmq.SUB)
-        self.sub.setsockopt(zmq.SUBSCRIBE, "experiment")
-        self.sub.setsockopt(zmq.SUBSCRIBE, "episode")
-        self.sub.setsockopt(zmq.SUBSCRIBE, "reset")
-        self.sub.setsockopt(zmq.SUBSCRIBE, "step")
+        self.sub = context.socket(zmq.PULL)
         self.sub.bind("inproc://experiment_events")
         
         # worker events -- control
@@ -61,59 +52,22 @@ class EventPublisher(threading.Thread):
         self.logger.debug("Event Queue is exiting")
                 
     def handle_communication_message(self, topic, msg):
-        if topic == "experiment":
-            self.logger.debug("A new experiment has been created")
-            self.experiment_id = msg
-            self.experiment = Experiment.get(Experiment.id == self.experiment_id)
-            
-            self.reset_episodes()
-            # broadcast new experiment??
-            self.logger.info("Now broadcasting experiment %s" % msg)
-            
-        elif topic == "episode":
-            if self.experiment_id is None:
-                raise RuntimeError("No experiment defined")
-        
-            self.episodes += 1
-            self.reset_resets()
-            # broadcast 
-        
-        elif topic == "reset":
-            self.resets += 1
-            self.reset_steps()
-            
-        elif topic == "step":
-            self.steps += 1
+        if topic == "step":
             msg = json.loads(msg)
             
             result = dict()
-            result["trial"] = self.experiment
-            result["episode"] = self.episodes
-            result["reset"] = self.resets
-            result["step"] = self.steps
-            result["reward"] = msg[0]
+            result["trial"] = msg["experiment"]
+            result["episode"] = msg["episode"]
+            result["reset"] = msg["reset"]
+            result["step"] = msg["step"]
+            result["reward"] = msg["reward"]
             
             try:
                 StepReward.create(**result)
             except peewee.IntegrityError:
                 self.logger.info("Step already in the database " + 
                     "-- should have been updated")
-            # eventually broadcast
-            
-    def _experiment(self, experiment):
-        self.experiment_id = experiment
-        self.reset_episodes()
-        
-    def reset_episodes(self):
-        self.episodes = 0
-        self.reset_resets()
-        
-    def reset_resets(self):
-        self.resets = 0
-        self.reset_steps()
-        
-    def reset_steps(self):
-        self.steps = 0
+            # maybe broadcast
                     
     def handle_command_message(self, cmd, msg):
         if cmd == "stop":

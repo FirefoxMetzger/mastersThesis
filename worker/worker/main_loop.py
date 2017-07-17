@@ -38,8 +38,10 @@ class WorkerLoop(threading.Thread):
             if not self.work_request_send:
                 self.req_work.send("more")
                 self.work_request_send = True
+                
             else:
                 sock = dict(self.poller.poll(100))
+                
                 # process another experiment
                 if self.req_work in sock:
                     experiment_id = self.req_work.recv_json()
@@ -52,7 +54,6 @@ class WorkerLoop(threading.Thread):
 
                         exp = Experiment.get(Experiment.id == experiment_id)
                         exp.setup(self.context)
-                        time.sleep(2) # -- ugly, rather wait for msg from eventlogger
                         exp.run()
                         
                         self.logger.debug("Finished Task %s" % experiment_id)
