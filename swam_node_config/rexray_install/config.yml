@@ -1,0 +1,12 @@
+libstorage:
+  service: virtualbox
+  integration:
+    volume:
+      operations:
+        create:
+          default:
+            size: 1
+virtualbox:
+  endpoint: http://10.188.200.23:18083
+  volumePath: /home/firefoxmetzger/VirtualBox VMs
+  controllerName: SATA

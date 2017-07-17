@@ -1,0 +1,35 @@
+#!/bin/sh
+# Starts and stops rexray
+#
+
+# catch and deny non-root usage
+[ $(id -u) = 0 ] || { echo 'must be root' ; exit 1; }
+
+# Add /usr/local/sbin to the path.
+export PATH=${PATH}:/usr/local/sbin
+
+start() {
+    rexray service start
+}
+
+stop() {
+    rexray service stop
+}
+
+restart() {
+    rexray service restart
+}
+
+status() {
+    rexray service status
+}
+
+case "$1" in
+start) start;;
+stop) stop;;
+restart) restart;;
+status) status;;
+*)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac
