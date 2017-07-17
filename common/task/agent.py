@@ -1,7 +1,7 @@
 import peewee
 import random
 from common.db_base import sql_base
-from common.agents import RandomAgent
+import common.agents as agents
 
 class Agent(sql_base):
     name = peewee.CharField(max_length=255)
@@ -26,14 +26,13 @@ class Agent(sql_base):
     def set_environment(self, env):
         self.agent.set_environment(env)
         
-    def reset(self, observation):
-        return self.agent.reset(observation)
-        
     def train_episode(self):
         self.agent.train_episode()
     
     def load_agent(self, name):
         if name == "random":
-            self.agent = RandomAgent()
+            self.agent = agents.RandomAgent()
+        elif name == "QAgent":
+            self.agent = agents.QAgent()
         else:
             raise RuntimeError("Agent unknown.")
