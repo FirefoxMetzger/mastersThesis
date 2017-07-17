@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+    jupyter:
+        image: 192.168.0.8:5000/jupyter
+        environment:
+            - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+        volumes:
+            - jupyter:/home/jovyan/work
+        ports:
+            - "8888:8888"
+        networks:
+            - swarm
+volumes:
+    jupyter:
+networks:
+    swarm:
+        external:
+            name: SQL_swarm
