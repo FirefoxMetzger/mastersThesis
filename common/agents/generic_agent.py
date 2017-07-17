@@ -13,13 +13,11 @@ class RandomAgent(sql_base):
     def set_environment(self, env):
         self.env = env
         
-    def reset(self, observation):
-        return self.env.getActions().sample()
-        
     def train_episode(self):
         if self.env is None:
             raise RuntimeError("Environment not defined")
         
+        self.env.reset()
         done = False
         while not done:
             action = self.env.getActions().sample()
