@@ -2,3 +2,5 @@
 *.pyc
 master/distrbutor_test/common
 worker/common
+**/tmp
+swam_node_config/registry/certs/
