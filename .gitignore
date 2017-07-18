@@ -3,4 +3,4 @@
 master/distrbutor_test/common
 worker/common
 **/tmp
-swam_node_config/registry/certs/
+node_image/registry/certs/
