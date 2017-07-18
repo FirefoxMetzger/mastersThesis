@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# output formating
+RED=$(tput setaf 1)
+WHITE=$(tput setaf 7)
+BOLD=$(tput bold)
+RESET=$(tput sgr0)
+
+# place to store intermediate files
+mkdir -p tmp/registry
+mkdir -p tmp/rexray
+mkdir -p registry/certs
+
+# build the SSL certificates
+REGISTRY_ADDRESS="192.168.0.40"
+printf "Set $RED$BOLD%s$RESET as docker registry address. \n" "$REGISTRY_ADDRESS"
+openssl genrsa > registry/certs/private.key
+cat registry/ssl.cnf.in | sed "s|{}|$REGISTRY_ADDRESS|" -> tmp/registry/ssl.cnf
+openssl req -new -x509 -config tmp/registry/ssl.cnf -key registry/certs/private.key -days 10000 > registry/certs/certificate.crt
+
+# generate the rexray file based on the pre-existing config
+REXRAY_ADDRESS="http://192.168.0.102:18083"
+printf "Set $RED$BOLD%s$RESET as VirtualBox-SOAP address. \n" "$REXRAY_ADDRESS"
+sed "s|{}|$REXRAY_ADDRESS|" rexray_install/config.yml.in > tmp/rexray/config.yml
+
+# build the image
+cat node_image.dockerfile |\
+sed "s|{}|$REGISTRY_ADDRESS|" - |\
+docker build -t node_image -f - .
+
+# extract the image
+docker run --rm node_image > boot2docker.iso
