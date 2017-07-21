@@ -1,26 +1,8 @@
 version: '3.1'
 
 services:
-    registry:
-        image: 192.168.0.40/registry
-        ports:
-            - "443:5000"
-        volumes:
-            - "registry_data:/data"
-        environment:
-            - REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/data
-            - REGISTRY_HTTP_TLS_CERTIFICATE=/run/secrets/registry_certificate
-            - REGISTRY_HTTP_TLS_KEY=/run/secrets/registry_private_key
-        secrets:
-            - registry_certificate
-            - registry_private_key
-        deploy:
-            placement:
-                constraints:
-                    - node.role==manager
-
     portainer:
-        image: 192.168.0.40/portainer
+        image: portainer/portainer
         ports:
             - "9000:9000"
         networks:
@@ -34,17 +16,9 @@ services:
             placement:
                 constraints: 
                     - node.role==manager
-secrets:
-    registry_certificate:
-        external: true
-    registry_private_key:
-        external: true
 
 volumes:
     portainer_data:
-    registry_data:
-        external:
-            name: registry_data
         
 networks:
   portainer-net:
