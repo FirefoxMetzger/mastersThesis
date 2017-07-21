@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "Getting current worker join Token"
-TOKEN=$( ssh docker@192.168.0.40 docker swarm join-token -q worker )
+echo "Getting current manager join token"
+TOKEN=$( docker swarm join-token -q manager )
 
 while read IP; do
     printf "Now processing %s \n" "$IP"
@@ -11,4 +11,4 @@ while read IP; do
 docker swarm leave --force
 docker swarm join --token $TOKEN 192.168.0.40
 EOF
-done <workers.list
+done <managers.list
