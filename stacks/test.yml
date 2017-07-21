@@ -2,14 +2,14 @@ version: "3"
 
 services:
     worker:
-        image: 192.168.0.8:5000/worker:test
+        image: 192.168.0.40/worker
         environment:
             - QUEUE_ADDRESS=tcp://distributor:5000
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
         networks:
             - swarm
     distributor:
-        image: 192.168.0.8:5000/distributor
+        image: 192.168.0.40/distributor
         environment:
             - QUEUE_ADDRESS=tcp://*:5000
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning

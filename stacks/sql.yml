@@ -2,22 +2,27 @@ version: '3'
 
 services:
     mysql:
-        image: mysql
+        image: 192.168.0.40/mysql
         environment:
             - MYSQL_ROOT_PASSWORD=password
         ports:
             - 3306:3306
         volumes:
-            - /home/docker/mysql:/var/lib/mysql
+            - mysql_data:/var/lib/mysql
         networks:
             - default
             - swarm
     myadmin:
-        image: phpmyadmin/phpmyadmin
+        image: 192.168.0.40/phpmyadmin
         environment:
             - PMA_HOST=mysql 
         ports:
             - 8080:80
+            
+volumes:
+    mysql_data:
+        external:
+            name: mysql_data
 
 networks:
     swarm:

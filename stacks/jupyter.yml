@@ -2,17 +2,22 @@ version: '3'
 
 services:
     jupyter:
-        image: 192.168.0.8:5000/jupyter
+        image: 192.168.0.40/jupyter
         environment:
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+        entrypoint:
+            - start-notebook.sh
+            - --NotebookApp.password=sha1:d6612504be77:10364c85161732cca16cb3bf6e6e2fb219ebc0ba
         volumes:
             - jupyter:/home/jovyan/work
         ports:
-            - "8888:8888"
+            - "80:8888"
         networks:
             - swarm
 volumes:
     jupyter:
+        external:
+            name: jupyter_data
 networks:
     swarm:
         external:
