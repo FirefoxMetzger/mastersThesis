@@ -6,10 +6,6 @@ TARGET=docker@$IP_ADDRESS
 # create a temporary directory
 mkdir -p tmp
 
-# setup a new swarm on the host
-ssh $TARGET docker swarm leave --force
-ssh $TARGET docker swarm init
-
 # -- PORTAINER --
 docker pull portainer/portainer
 docker tag portainer/portainer $IP_ADDRESS/portainer
@@ -24,8 +20,8 @@ ssh $TARGET docker load <tmp/registry.tar.gz
 ssh $TARGET docker volume create registry_data
 
 # setup the secrets
-cat registry/certs/certificate.crt | ssh $TARGET docker secret create registry_certificate -
-cat registry/certs/private.key | ssh $TARGET docker secret create registry_private_key -
+cat tmp/registry/certs/certificate.crt | ssh $TARGET docker secret create registry_certificate -
+cat tmp/registry/certs/private.key | ssh $TARGET docker secret create registry_private_key -
 
 # launch the stack
 scp base-stack.yml $TARGET:~

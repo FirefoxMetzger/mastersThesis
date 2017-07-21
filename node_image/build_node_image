@@ -6,27 +6,44 @@ WHITE=$(tput setaf 7)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
+# config
+REGISTRY_ADDRESS="192.168.0.40"                 # SAN for the registry's self 
+                                                # signed certificate, will be
+                                                # appended to /docker/certs.d
+
+VIRTUALBOX_SOAP="http://192.168.0.102:18083"    # REX-Ray seraches here for
+                                                # persistent docker volumes
+LIBSTORAGE_ADDRESS="tcp://192.168.0.40:7981"    # docker searches here for
+                                                # a libStorage endpoint
+
 # place to store intermediate files
-mkdir -p tmp/registry
-mkdir -p tmp/rexray
-mkdir -p registry/certs
+mkdir -p tmp/
+TMP="tmp"
+mkdir -p $TMP/registry
+mkdir -p $TMP/rexray
+mkdir -p $TMP/registry/certs
 
-# build the SSL certificates
-REGISTRY_ADDRESS="192.168.0.40"
+# --- REGISTRY ---
+# Generate SSL Certificates
 printf "Set $RED$BOLD%s$RESET as docker registry address. \n" "$REGISTRY_ADDRESS"
-openssl genrsa > registry/certs/private.key
-cat registry/ssl.cnf.in | sed "s|{}|$REGISTRY_ADDRESS|" -> tmp/registry/ssl.cnf
-openssl req -new -x509 -config tmp/registry/ssl.cnf -key registry/certs/private.key -days 10000 > registry/certs/certificate.crt
+openssl genrsa > $TMP/registry/certs/private.key
+cat registry/ssl.cnf.in | sed "s|{}|$REGISTRY_ADDRESS|" -> $TMP/registry/ssl.cnf
+openssl req -new -x509 -config $TMP/registry/ssl.cnf -key $TMP/registry/certs/private.key -days 10000 > $TMP/registry/certs/certificate.crt
 
-# generate the rexray file based on the pre-existing config
-REXRAY_ADDRESS="http://192.168.0.102:18083"
+# --- REXRAY ---
+# Generate the REX-Ray config
 printf "Set $RED$BOLD%s$RESET as VirtualBox-SOAP address. \n" "$REXRAY_ADDRESS"
-sed "s|{}|$REXRAY_ADDRESS|" rexray_install/config.yml.in > tmp/rexray/config.yml
+sed "s|{}|$VIRTUALBOX_SOAP|" rexray_install/config.yml.in > $TMP/rexray/config.yml
+
+# Generate /etc/docker/plugins/rexray.spec
+printf "Set $RED$BOLD%s$RESET as libStorage address. \n" "$LIBSTORAGE_ADDRESS"
+echo $LIBSTORAGE_ADDRESS > $TMP/rexray/rexray.spec
+
 
 # build the image
 cat node_image.dockerfile |\
 sed "s|{}|$REGISTRY_ADDRESS|" - |\
-docker build -t node_image -f - .
+docker build -t node_image --no-cache -f - .
 
 # extract the image
 docker run --rm node_image > boot2docker.iso

@@ -1,3 +1,7 @@
+rexray:
+  modules:
+    default-docker:
+      host: tcp://:7981
 libstorage:
   service: virtualbox
   integration:

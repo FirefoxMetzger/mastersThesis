@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
     registry:
-        image: registry
+        image: 192.168.0.40/registry
         ports:
             - "443:5000"
         volumes:
@@ -14,9 +14,13 @@ services:
         secrets:
             - registry_certificate
             - registry_private_key
+        deploy:
+            placement:
+                constraints:
+                    - node.role==manager
 
     portainer:
-        image: portainer/portainer
+        image: 192.168.0.40/portainer
         ports:
             - "9000:9000"
         networks:

@@ -11,6 +11,6 @@ mkdir -p $ROOTFS/etc/rexray
 cp $source_path/config.yml $ROOTFS/etc/rexray/config.yml
 
 # make rexray autostart
-cp $source_path/startup $ROOTFS/etc/init.d/rexray
-cp $source_path/rc $ROOTFS/etc/rc.d/rexray
-cat $source_path/bootscript.sh >> $ROOTFS/opt/bootscript.sh
+#cp $source_path/startup $ROOTFS/etc/init.d/rexray
+#cp $source_path/rc $ROOTFS/etc/rc.d/rexray
+#cat $source_path/bootscript.sh >> $ROOTFS/opt/bootscript.sh
