@@ -3,7 +3,8 @@ import random
 from common.db_base import sql_base
 
 class RandomAgent(sql_base):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(RandomAgent, self).__init__(*args, **kwargs)
         self.random = random.Random()
         self.env = None
         

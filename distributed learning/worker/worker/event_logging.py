@@ -23,6 +23,10 @@ class EventPublisher(threading.Thread):
         # setup logger
         self.logger = logging.getLogger()
         
+        # publish event messages
+        self.push = context.socket(zmq.PUSH)
+        self.push.connect(os.environ["EXPERIMENT_EVENTS"])
+        
         # subscribe to internal events
         self.sub = context.socket(zmq.PULL)
         self.sub.bind("inproc://experiment_events")
@@ -61,13 +65,9 @@ class EventPublisher(threading.Thread):
             result["reset"] = msg["reset"]
             result["step"] = msg["step"]
             result["reward"] = msg["reward"]
+            result["done"] = msg["done"]
+            self.push.send_multipart("step", json.dumps(result))
             
-            try:
-                StepReward.create(**result)
-            except peewee.IntegrityError:
-                self.logger.info("Step already in the database " + 
-                    "-- should have been updated")
-            # maybe broadcast
                     
     def handle_command_message(self, cmd, msg):
         if cmd == "stop":

@@ -72,6 +72,7 @@ class Environment(sql_base):
         
         obs = self.env.reset()
         self._resets += 1
+        self._step = 0
         return obs
 
     def step(self, action):

@@ -2,19 +2,24 @@ from gym import spaces
 from generic_agent import RandomAgent
 import logging
 import numpy as np
+import peewee
 
 class QAgent(RandomAgent):
-    def __init__(self):
-        super(QAgent, self).__init__()
+    alpha = peewee.FloatField()
+    gamma = peewee.FloatField()
+    rand_rate = peewee.FloatField()
+    rad_decay = peewee.FloatField()
+
+    def __init__(self, *args, **kwargs):
+        super(QAgent, self).__init__(*args, **kwargs)
         self.action_space_supported = False
         self.observation_space_supported = False
         self.logger = logging.getLogger()
         
-        # trial parameters
-        self.alpha = 0.2
-        self.gamma = 0.9
-        self.rand_rate = 0.5
-        self.rand_decay = 0.99
+    @classmethod
+    def get(self, cls, *query, **kwargs):
+        self = super(QAgent, self).get(cls, *query, **kwargs)
+        return self
         
     def set_environment(self, env):
         self.env = env

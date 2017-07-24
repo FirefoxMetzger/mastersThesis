@@ -14,5 +14,5 @@ class StepReward(sql_base):
     class Meta():
         db = connect(os.environ["DB_ADDRESS"])
         indexes = (
-            (('trial', 'episode','step'), True),
+            (('trial', 'episode','reset','step'), True),
         )

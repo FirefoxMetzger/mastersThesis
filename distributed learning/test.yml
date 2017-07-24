@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+    worker:
+        image: firefoxmetzger/worker
+        environment:
+            - QUEUE_ADDRESS=tcp://distributor:5000
+            - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+        networks:
+            - swarm
+    distributor:
+        image: firefoxmetzger/distributor
+        environment:
+            - QUEUE_ADDRESS=tcp://*:5000
+            - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+        networks:
+            - swarm
+networks:
+  swarm:
+    external:
+        name: SQL_swarm
