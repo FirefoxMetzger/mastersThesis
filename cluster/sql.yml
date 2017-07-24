@@ -2,7 +2,7 @@ version: '3'
 
 services:
     mysql:
-        image: 192.168.0.40/mysql
+        image: mysql
         environment:
             - MYSQL_ROOT_PASSWORD=password
         ports:
@@ -13,7 +13,7 @@ services:
             - default
             - swarm
     myadmin:
-        image: 192.168.0.40/phpmyadmin
+        image: phpmyadmin/phpmyadmin
         environment:
             - PMA_HOST=mysql 
         ports:
