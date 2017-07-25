@@ -17,6 +17,7 @@ WORKDIR /app
 
 ENV LOGGING_LEVEL=DEBUG
 ENV QUEUE_ADDRESS=tcp://127.0.0.1:5000
+ENV HUB_ADDRESS=tcp://127.0.0.1:4444
 ENV DB_ADDRESS=mysql://root:password@127.0.0.1/reinforcement_learning
 
 COPY RLUnit/worker/ /app
