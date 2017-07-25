@@ -1,18 +1,26 @@
-version: "3"
+version: "3.1"
 
 services:
     worker:
-        image: firefoxmetzger/worker
+        image: firefoxmetzger/rlunit-worker
         environment:
             - QUEUE_ADDRESS=tcp://distributor:5000
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+            - HUB_ADDRESS=tcp://hub:5555
         networks:
             - swarm
     distributor:
-        image: firefoxmetzger/distributor
+        image: firefoxmetzger/rlunit-distributor
         environment:
             - QUEUE_ADDRESS=tcp://*:5000
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+        networks:
+            - swarm
+    hub:
+        image: firefoxmetzger/rlunit-hub
+        environment:
+            - WORKER_EVENT_ADDRESS=tcp://*:5555
+            - PIPELINE_PUBLISHER_ADDRESS=tcp://*:4444
         networks:
             - swarm
 networks:
