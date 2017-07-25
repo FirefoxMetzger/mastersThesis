@@ -1,15 +1,22 @@
-FROM quay.io/openai/gym:latest
-ENV PYTHONPATH=$PYTHONPATH:/usr/local/gym
-RUN sudo apt-get update && \
+FROM python:2.7
+
+# install dependancies
+RUN apt-get update && \
     apt-get install libmysqlclient-dev -y
-
-WORKDIR /app
-COPY master/distrbutor_test /app
-COPY common /app/common
-
+ADD /RLUnit/distributor/Requirements.txt .
 RUN pip install -r Requirements.txt && rm Requirements.txt
 
-ENV LOGGING_LEVEL=DEBUG
+# Install RLUnit_database
+WORKDIR /RLUnit_database_install
+COPY database/ .
+RUN python setup.py install && cd .. && rm -rf /RLUnit_database_install
+
+# Base config
+ENV LOGGING_LEVEL=INFO
 ENV TASK_ADDRESS=tcp://*:5000
 
-CMD ["python", "test.py"]
+# The actual container files
+WORKDIR /app
+COPY RLUnit/distributor /app
+
+ENTRYPOINT ["python", "distributor.py"]
