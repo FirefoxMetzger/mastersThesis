@@ -7,7 +7,7 @@ import os
 import sys
 import random
 
-from common.task.experiment import Experiment
+from RLUnit_database.task import Experiment
 
 # setup logger
 logger = logging.getLogger()
