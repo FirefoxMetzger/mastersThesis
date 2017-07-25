@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+    entrypoint:
+        image: firefoxmetzger/reward-pipeline-entrypoint
+        environment:
+            - EXPERIMENT_EVENTS=tcp://worker_hub_out:1337
+        networks:
+            - default
+            - swarm
+    map:
+        image: firefoxmetzger/reward-pipeline-map
+    shuffle:
+        image: firefoxmetzger/reward-pipeline-shuffle
+    reduce:
+        image: firefoxmetzger/reward-pipeline-reduce
+        environment:
+            - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+        networks:
+            - default
+            - swarm
+  
+networks:
+  default:
+  swarm:
+    external:
+        name: SQL_swarm

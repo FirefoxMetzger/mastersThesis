@@ -1,0 +1,3 @@
+pyzmq
+mysql-python
+peewee

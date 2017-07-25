@@ -1,0 +1,12 @@
+FROM firefoxmetzger/pipeline-base
+
+ENV REDUCER_REQUEST_ADDRESS_IN="tcp://*:4100"
+ENV REDUCER_REQUEST_ADDRESS_OUT="tcp://*:6100"
+ENV MAPPER_REPLY_ADDRESS_IN="tcp://*:4200"
+ENV MAPPER_REPLY_ADDRESS_OUT="tcp://*:6200"
+ENV SCHEDULER_ADDRESS_IN="tcp://*:5000"
+ENV SCHEDULER_ADDRESS_OUT="tcp://*:6000"
+
+ADD main.py .
+ADD scheduler.py .
+ENTRYPOINT ["python", "main.py"]
