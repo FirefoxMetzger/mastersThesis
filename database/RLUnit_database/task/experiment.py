@@ -1,9 +1,9 @@
 import peewee
 import zmq
-from common.db_base import sql_base
-from common.task.environment import Environment
-from common.task.agent import Agent
-from common.task.trial import Trial
+from RLUnit_database.db_base import sql_base
+from RLUnit_database.task.environment import Environment
+from RLUnit_database.task.agent import Agent
+from RLUnit_database.task.trial import Trial
 
 import time
 import json

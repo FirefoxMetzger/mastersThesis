@@ -1,6 +1,6 @@
 import random
 
-from common.db_base import sql_base
+from RLUnit_database.db_base import sql_base
 
 class RandomAgent(sql_base):
     def __init__(self, *args, **kwargs):

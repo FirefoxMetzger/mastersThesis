@@ -1,7 +1,7 @@
 import peewee
 import random
-from common.db_base import sql_base
-import common.agents as agents
+from RLUnit_database.db_base import sql_base
+import RLUnit_database.agents as agents
 
 class Agent(sql_base):
     name = peewee.CharField(max_length=255)

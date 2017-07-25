@@ -1,5 +1,5 @@
 import peewee
-from common.db_base import sql_base
+from RLUnit_database.db_base import sql_base
 
 class Trial(sql_base):
     agent_seed = peewee.BigIntegerField()
