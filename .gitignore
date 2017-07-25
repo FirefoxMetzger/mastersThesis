@@ -4,3 +4,8 @@ master/distrbutor_test/common
 worker/common
 **/tmp
 node_image/registry/certs/
+
+# ignore generated files from RLUnit_database
+database/build/
+database/dist/
+database/RLUnit_database.egg-info
