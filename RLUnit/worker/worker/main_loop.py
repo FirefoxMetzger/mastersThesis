@@ -4,7 +4,7 @@ import logging
 import time
 import random
 
-from common.task.experiment import Experiment
+from orm import Experiment
 
 class WorkerLoop(threading.Thread):
     def __init__(self, context, queue_address):
@@ -52,8 +52,7 @@ class WorkerLoop(threading.Thread):
                     else:
                         self.logger.debug("Fetching experiment with ID: %s" % experiment_id)
 
-                        exp = Experiment.get(Experiment.id == experiment_id)
-                        exp.setup(self.context)
+                        exp = Experiment(experiment_id, self.context)
                         exp.run()
                         
                         self.logger.debug("Finished Task %s" % experiment_id)

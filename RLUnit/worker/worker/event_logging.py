@@ -3,10 +3,6 @@ import zmq
 import logging
 import os
 import json
-import peewee
-
-from common.result.step_reward import StepReward
-from common.task.experiment import Experiment
 
 class EventPublisher(threading.Thread):
     """
@@ -66,6 +62,7 @@ class EventPublisher(threading.Thread):
             result["step"] = msg["step"]
             result["reward"] = msg["reward"]
             result["done"] = msg["done"]
+            self.logger.debug("Sending step %s. Done: %s" % (msg["step"], msg["done"]))
             self.push.send_multipart("step", json.dumps(result))
             
                     
@@ -76,8 +73,3 @@ class EventPublisher(threading.Thread):
         elif cmd == "debug_level":
             self.logger.setLevel(msg)
             self.logger.debug("Set logging level to %s" % msg)
-            
-if __name__ == "__main__":
-    ctx = zmq.Context()
-    a = EventPublisher(ctx)
-    a.start()

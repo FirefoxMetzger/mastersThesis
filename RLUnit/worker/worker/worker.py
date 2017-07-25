@@ -18,7 +18,7 @@ class Worker(object):
         self.logger.debug("Set logging level to %s" % logging_level)
         
         # setup queue communication
-        self.context = zmq.Context()
+        self.context = zmq.Context.instance()
     
         # threads
         self.event_queue = EventPublisher(self.context)
