@@ -58,7 +58,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=['RLUnit_database'],
+    packages=['RLUnit_database', 'RLUnit_database.task', 'RLUnit_database.result'],
 
     # Use requirements found in Requirements.txt
     install_requires=['peewee'],
