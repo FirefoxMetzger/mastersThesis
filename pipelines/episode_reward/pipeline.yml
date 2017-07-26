@@ -2,20 +2,36 @@ version: '3.1'
 
 services:
     entrypoint:
-        image: firefoxmetzger/reward-pipeline-entrypoint
+        image: firefoxmetzger/rlunit-episode-reward-entrypoint
         environment:
-            - EXPERIMENT_EVENTS=tcp://worker_hub_out:1337
+            - EXPERIMENT_EVENTS=tcp://hub:1337
+            - ENTRYPOINT_ADDRESS=tcp://*:4000
         networks:
             - default
             - swarm
     map:
-        image: firefoxmetzger/reward-pipeline-map
+        image: firefoxmetzger/rlunit-episode-reward-mapper
+        environment:
+            - ENTRYPOINT_ADDRESS=tcp://entrypoint:4000
+            - REDUCER_REQUEST_ADDRESS=tcp://shuffle:5000
+            - MAPPER_REPLY_ADDRESS=tcp://shuffle:6000
+            - SCHEDULER_ADDRESS=tcp://shuffle:7000
     shuffle:
-        image: firefoxmetzger/reward-pipeline-shuffle
+        image: firefoxmetzger/rlunit-episode-reward-shuffle
+        environment:
+            - REDUCER_REQUEST_ADDRESS_IN=tcp://*:5000
+            - MAPPER_REPLY_ADDRESS_IN=tcp://*:6000
+            - SCHEDULER_ADDRESS_IN=tcp://*:7000
+            - REDUCER_REQUEST_ADDRESS_OUT=tcp://*:5500
+            - MAPPER_REPLY_ADDRESS_OUT=tcp://*:6500
+            - SCHEDULER_ADDRESS_OUT=tcp://*:7500
     reduce:
-        image: firefoxmetzger/reward-pipeline-reduce
+        image: firefoxmetzger/rlunit-episode-reward-reducer
         environment:
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+            - REDUCER_REQUEST_ADDRESS=tcp://shuffle:5500
+            - MAPPER_REPLY_ADDRESS=tcp://shuffle:6500
+            - SCHEDULER_ADDRESS=tcp://shuffle:7500
         networks:
             - default
             - swarm
