@@ -1,5 +1,6 @@
 import peewee
 import random
+from gym.spaces import prng
 from RLUnit_database.task import Agent as AgentData
 import os
 
@@ -20,6 +21,7 @@ class Agent(object):
         self.agent = agent_module.Agent()
         
     def seed(self, seed):
+        prng.seed(seed)
         self.agent.seed(seed)
         
     def set_environment(self, env):

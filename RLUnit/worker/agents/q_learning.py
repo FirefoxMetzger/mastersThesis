@@ -5,6 +5,7 @@ import numpy as np
 
 class QAgent(RandomAgent):
     def __init__(self):
+        super(QAgent, self).__init__()
         self.action_space_supported = False
         self.observation_space_supported = False
         self.logger = logging.getLogger()

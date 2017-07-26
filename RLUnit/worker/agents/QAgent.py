@@ -5,7 +5,7 @@ class Agent(QAgent):
         super(Agent, self).__init__()
         
         self.alpha = 0.4
-        self.gamma = "Foobar"
+        self.gamma = 0.5
         
         self = QAgent()
         

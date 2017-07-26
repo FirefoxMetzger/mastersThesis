@@ -1,7 +1,7 @@
 import random
 
 class RandomAgent(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.random = random.Random()
         self.env = None
         

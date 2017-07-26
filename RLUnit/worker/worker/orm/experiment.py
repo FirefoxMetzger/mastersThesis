@@ -22,11 +22,14 @@ class Experiment(object):
         self.environment = Environment.get(Environment.id == experiment.environment)
         self.environment.context = context
         
-        self.agent = Agent(experiment.agent)
-        
         env_seed = self.trial.environment_seed
         self.environment.seed(env_seed)
         self.environment.experiment_id = experiment.id
+        
+        # The agent has to be initialized AFTER the environment is setup and
+        # seeded. Otherwise action- and observation space have uncontrollable
+        # randomness (randomness to those spaces is set during env.seed(int)
+        self.agent = Agent(experiment.agent)
         
         agent_seed = self.trial.agent_seed
         self.agent.seed(agent_seed)
