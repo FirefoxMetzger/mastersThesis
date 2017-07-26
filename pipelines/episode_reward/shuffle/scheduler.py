@@ -1,9 +1,19 @@
 import zmq
 from zmq.devices import ProcessProxy
+import logging
 
 class Scheduler(ProcessProxy):
     def __init__(self, in_type, out_type):
         super(Scheduler, self).__init__(in_type, out_type, zmq.PUB)
+        
+        self.logger = logging.getLogger()
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+                '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        self.logger.setLevel("DEBUG")
+        self.logger.debug("Set logging level to DEBUG")
         
         self.pending_episodes = list()
 
@@ -21,15 +31,18 @@ class Scheduler(ProcessProxy):
                 # in partition if necessary
                 topic = mapper.recv()
                 if topic not in self.pending_episodes:
+                    self.logger.info("%s is now aviable on a worker" % topic)
                     self.pending_episodes.append(topic)
                     
             if reducer in active:
                 # hand out a new episode to a reducer for processing
                 reducer.recv()
                 if not self.pending_episodes:
+                    self.logger.info("A reducer requested work, but there is nothing to do.")
                     topic = "no work"
                 else:
                     topic = self.pending_episodes.pop(0)
+                    self.logger.info("Sending %s to a reducer" % topic)
                 reducer.send(topic)
 
     def run_device(self):

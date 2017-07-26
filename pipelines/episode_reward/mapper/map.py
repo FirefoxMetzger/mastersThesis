@@ -21,9 +21,9 @@ def get_socket(type_, address):
 
 entrypoint = get_socket(zmq.PULL, "ENTRYPOINT_ADDRESS")
 reducer_req = get_socket(zmq.SUB, "REDUCER_REQUEST_ADDRESS")
-reducer_rep = get_socket(zmq.PUB, "MAPPER_REPLY_ADDRESS")
+reducer_req.setsockopt(zmq.SUBSCRIBE,"") # subscribe to all
+reducer_rep = get_socket(zmq.PUSH, "MAPPER_REPLY_ADDRESS")
 scheduler = get_socket(zmq.PUSH, "SCHEDULER_ADDRESS")
-logger.debug("Bound all sockets.")
 
 # setup local partitioning
 partitions = dict()
@@ -41,7 +41,8 @@ while not ctx.closed:
         # extract from the message what is needed downstream to save bandwidth
         msg = json.loads(msg_json)
         topic = str(msg["trial"]) + "," + str(msg["episode"])
-        small_msg = json.dumps({"step":msg["step"], "reward":msg["reward"] , "done":msg["done"]})
+         
+        small_msg = {"step":msg["step"], "reward":msg["reward"] , "done":msg["done"]}
         
         if topic not in partitions:
             logger.info("New Topic: "+topic)
@@ -61,4 +62,4 @@ while not ctx.closed:
             msg = json.dumps(steps)
             reducer_rep.send_multipart((topic, msg))
         else:
-            logger.debug("Topic %s unknown. Ignoring request")
+            logger.debug("Topic %s unknown. Ignoring request" % topic)
