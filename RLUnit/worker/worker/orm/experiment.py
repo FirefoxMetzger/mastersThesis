@@ -40,3 +40,4 @@ class Experiment(object):
             
             # perform episode
             self.agent.train_episode()
+
