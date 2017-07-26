@@ -21,7 +21,7 @@ class EventPublisher(threading.Thread):
         
         # publish event messages
         self.push = context.socket(zmq.PUSH)
-        self.push.connect(os.environ["EXPERIMENT_EVENTS"])
+        self.push.connect(os.environ["HUB_ADDRESS"])
         
         # subscribe to internal events
         self.sub = context.socket(zmq.PULL)
@@ -63,7 +63,7 @@ class EventPublisher(threading.Thread):
             result["reward"] = msg["reward"]
             result["done"] = msg["done"]
             self.logger.debug("Sending step %s. Done: %s" % (msg["step"], msg["done"]))
-            self.push.send_multipart("step", json.dumps(result))
+            self.push.send_multipart(("step", json.dumps(result)))
             
                     
     def handle_command_message(self, cmd, msg):

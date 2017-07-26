@@ -20,7 +20,7 @@ services:
         image: firefoxmetzger/rlunit-hub
         environment:
             - WORKER_EVENT_ADDRESS=tcp://*:5555
-            - PIPELINE_PUBLISHER_ADDRESS=tcp://*:4444
+            - PIPELINE_PUBLISHER_ADDRESS=tcp://*:1337
         networks:
             - swarm
 networks:
