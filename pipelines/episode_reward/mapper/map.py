@@ -1,6 +1,16 @@
 import zmq
 import json
 import os
+import logging
+
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel("DEBUG")
+logger.debug("Set logging level to DEBUG")
 
 # declare sockets
 def get_socket(type_, address):
@@ -13,6 +23,7 @@ entrypoint = get_socket(zmq.PULL, "ENTRYPOINT_ADDRESS")
 reducer_req = get_socket(zmq.SUB, "REDUCER_REQUEST_ADDRESS")
 reducer_rep = get_socket(zmq.PUB, "MAPPER_REPLY_ADDRESS")
 scheduler = get_socket(zmq.PUSH, "SCHEDULER_ADDRESS")
+logger.debug("Bound all sockets.")
 
 # setup local partitioning
 partitions = dict()
@@ -25,25 +36,29 @@ poller.register(reducer_req, zmq.POLLIN)
 ctx = zmq.Context.instance()
 while not ctx.closed:
     aviable = dict(poller.poll())
-
     if entrypoint in aviable:
-        _, msg_json = pull.recv_multipart()
+        _, msg_json = entrypoint.recv_multipart()
         # extract from the message what is needed downstream to save bandwidth
-        msg = json.reads(msg_json)
-        topic = str(msg["experiment"]) + "," + str(msg["episode"])
+        msg = json.loads(msg_json)
+        topic = str(msg["trial"]) + "," + str(msg["episode"])
         small_msg = json.dumps({"step":msg["step"], "reward":msg["reward"] , "done":msg["done"]})
         
         if topic not in partitions:
+            logger.info("New Topic: "+topic)
             partitions[topic] = list()
 
         # inform scheduler of aviable episode           
-        scheduler.send(topic)  
+        scheduler.send(topic)
+        #logger.debug("Storing step %s for topic %s" % (msg["step"], topic))
         partitions[topic].append(small_msg)
         
     if reducer_req in aviable:
         # handle data request if suitable data is present
-        topic = reducer_req.recv()
+        topic, msg = reducer_req.recv_multipart()
         if topic in partitions:
-            steps = partitions[topic]
+            logger.debug("Sending out topic: " + topic)
+            steps = partitions.pop(topic)
             msg = json.dumps(steps)
             reducer_rep.send_multipart((topic, msg))
+        else:
+            logger.debug("Topic %s unknown. Ignoring request")
