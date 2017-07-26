@@ -12,7 +12,6 @@ class StepReward(sql_base):
     reward = peewee.DoubleField()
     
     class Meta():
-        db = connect(os.environ["DB_ADDRESS"])
         indexes = (
             (('trial', 'episode','reset','step'), True),
         )
