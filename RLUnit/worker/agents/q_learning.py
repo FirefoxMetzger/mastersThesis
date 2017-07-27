@@ -16,6 +16,10 @@ class QAgent(RandomAgent):
         self.rand_rate = 0.7
         self.rand_decay = 0.99
         
+    def seed(self, seed):
+        super(QAgent, self).seed(seed)
+        np.random.seed(seed)
+        
     def set_environment(self, env):
         self.env = env
         
