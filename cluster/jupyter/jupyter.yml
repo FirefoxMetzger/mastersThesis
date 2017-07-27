@@ -2,14 +2,14 @@ version: '3'
 
 services:
     jupyter:
-        image: 192.168.0.40/jupyter
+        image: firefoxmetzger/rlunit-jupyter
         environment:
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
         entrypoint:
             - start-notebook.sh
             - --NotebookApp.password=sha1:d6612504be77:10364c85161732cca16cb3bf6e6e2fb219ebc0ba
         volumes:
-            - jupyter:/home/jovyan/work
+            - jupyter:/home/jovyan/
         ports:
             - "80:8888"
         networks:
