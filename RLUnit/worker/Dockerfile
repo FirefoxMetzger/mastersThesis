@@ -1,4 +1,4 @@
-FROM quay.io/openai/gym:latest
+FROM firefoxmetzger/gym:latest
 ENV PYTHONPATH=$PYTHONPATH:/usr/local/gym
 
 # external dependancies
@@ -14,7 +14,7 @@ COPY database/ .
 RUN python setup.py install && cd .. && rm -rf /database
 
 WORKDIR /app
-ENV LOGGING_LEVEL=DEBUG
+ENV LOGGING_LEVEL=INFO
 ENV QUEUE_ADDRESS=tcp://127.0.0.1:5000
 ENV HUB_ADDRESS=tcp://127.0.0.1:4444
 ENV DB_ADDRESS=mysql://root:password@127.0.0.1/reinforcement_learning
