@@ -3,16 +3,6 @@ from zmq.devices import ProcessProxy
 from scheduler import Scheduler
 import os
 import time
-import logging
-
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter(
-        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel("DEBUG")
-logger.debug("Set logging level to DEBUG")
 
 reduce_to_map = zmq.devices.ProcessProxy(zmq.PULL, zmq.PUB)
 reduce_to_map.bind_in(os.environ["REDUCER_REQUEST_ADDRESS_IN"])
