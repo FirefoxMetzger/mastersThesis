@@ -50,7 +50,7 @@ try:
                 ret_msg = q.get_nowait()[1]
             except Queue.Empty:
                 ret_msg = "no work"
-                refill_queue()
+                # refill_queue()
         else:
             ret_msg = "not understood"
 
@@ -61,4 +61,3 @@ except KeyboardInterrupt:
 finally:
     task_server.unbind(task_address)
     context.term()
-            
