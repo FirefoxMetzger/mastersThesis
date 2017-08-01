@@ -16,6 +16,8 @@ services:
             - REDUCER_REQUEST_ADDRESS=tcp://shuffle:5500
             - MAPPER_REPLY_ADDRESS=tcp://shuffle:6000
             - SCHEDULER_ADDRESS=tcp://shuffle:7000
+        deploy:
+            replicas: 3
     shuffle:
         image: firefoxmetzger/rlunit-episode-reward-shuffle
         environment:
@@ -35,7 +37,7 @@ services:
         networks:
             - default
             - swarm
-  
+
 networks:
   default:
   swarm:
