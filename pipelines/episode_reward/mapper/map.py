@@ -20,8 +20,8 @@ def get_socket(type_, address):
     return sock
 
 entrypoint = get_socket(zmq.PULL, "ENTRYPOINT_ADDRESS")
-reducer_req = get_socket(zmq.SUB, "REDUCER_REQUEST_ADDRESS")
-reducer_req.setsockopt(zmq.SUBSCRIBE,"") # subscribe to all
+reducer_req = get_socket(zmq.PULL, "REDUCER_REQUEST_ADDRESS")
+#reducer_req.setsockopt(zmq.SUBSCRIBE,"") # subscribe to all
 reducer_rep = get_socket(zmq.PUSH, "MAPPER_REPLY_ADDRESS")
 scheduler = get_socket(zmq.PUSH, "SCHEDULER_ADDRESS")
 
@@ -41,18 +41,19 @@ while not ctx.closed:
         # extract from the message what is needed downstream to save bandwidth
         msg = json.loads(msg_json)
         topic = str(msg["trial"]) + "," + str(msg["episode"])
-         
+
         small_msg = {"step":msg["step"], "reward":msg["reward"] , "done":msg["done"]}
-        
+
         if topic not in partitions:
             logger.info("New Topic: "+topic)
             partitions[topic] = list()
 
-        # inform scheduler of aviable episode           
-        scheduler.send(topic)
+            # inform scheduler of aviable episode
+            scheduler.send(topic)
+
         #logger.debug("Storing step %s for topic %s" % (msg["step"], topic))
         partitions[topic].append(small_msg)
-        
+
     if reducer_req in aviable:
         # handle data request if suitable data is present
         topic, msg = reducer_req.recv_multipart()
