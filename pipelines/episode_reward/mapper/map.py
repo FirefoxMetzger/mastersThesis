@@ -46,20 +46,20 @@ while not ctx.closed:
 
         if topic not in partitions:
             logger.info("New Topic: "+topic)
-            partitions[topic] = list()
+            partitions[topic] = set()
 
             # inform scheduler of aviable episode
             scheduler.send(topic)
 
         #logger.debug("Storing step %s for topic %s" % (msg["step"], topic))
-        partitions[topic].append(small_msg)
+        partitions[topic].add(json.dumps(small_msg))
 
     if reducer_req in aviable:
         # handle data request if suitable data is present
         topic, msg = reducer_req.recv_multipart()
         if topic in partitions:
             logger.debug("Sending out topic: " + topic)
-            steps = partitions.pop(topic)
+            steps = [json.loads(s) for s in partitions.pop(topic)]
             msg = json.dumps(steps)
             reducer_rep.send_multipart((topic, msg))
         else:
