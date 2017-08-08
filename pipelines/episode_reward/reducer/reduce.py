@@ -97,7 +97,7 @@ while not zmq.Context.instance().closed:
             episode_buffer.append(  {"trial":active_topic.trial,
                                     "episode":active_topic.episode,
                                     "reward":active_topic.accumulated_reward})
-            logger.info(("Episode %s, Experiment %s, Reward %d, Steps: %d"+
+            logger.info(("Experiment %s, Episode %s, Reward %d, Steps: %d"+
                         "  -- Buffered %d/200") %
                         (active_topic.trial, active_topic.episode,
                         active_topic.accumulated_reward,
@@ -126,7 +126,6 @@ while not zmq.Context.instance().closed:
         if topic == "no work":
             logger.debug("I am supposed to do nothing.")
         else:
-            logger.info("Now collecting topic: " + topic)
             active_topic = ActiveTopic(topic)
 
         # every so many episodes, store them in bulk
