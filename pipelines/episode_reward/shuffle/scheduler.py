@@ -2,6 +2,7 @@ import zmq
 from zmq.devices import ProcessProxy
 import logging
 import time
+import os
 
 class Scheduler(ProcessProxy):
     def __init__(self, in_type, out_type):
@@ -17,7 +18,7 @@ class Scheduler(ProcessProxy):
         self.logger.debug("Set logging level to DEBUG")
 
         self.pending_episodes = list()
-        self.known_episodes = dict() # essentially an episode heartbeat
+        self.processing_episodes = dict()
 
     def _run(self):
         mapper, reducer, _ = self._setup_sockets()
@@ -32,45 +33,42 @@ class Scheduler(ProcessProxy):
                 # append the list of episodes (topics) that have steps
                 # in partition if necessary
                 topic = mapper.recv()
-                if topic not in self.known_episodes.keys():
+                if (topic not in self.pending_episodes and
+                    topic not in self.processing_episodes.keys()):
                     self.logger.info("%s is now aviable on a worker" % topic)
                     self.pending_episodes.append(topic)
-                    self.known_episodes[topic] = 0
 
             if reducer in active:
                 # hand out a new episode to a reducer for processing
                 msg, topic = reducer.recv_multipart()
                 if msg == "new topic":
                     if not self.pending_episodes:
-                        self.logger.info("A reducer requested work, but there is nothing to do.")
+                        self.logger.debug("A reducer requested work, but there is nothing to do.")
                         topic = "no work"
                     else:
                         topic = self.pending_episodes.pop(0)
-                        self.logger.info("Sending %s to a reducer" % topic)
-                        self.known_episodes[topic] = time.time()
+                        self.logger.debug("Sending %s to a reducer" % topic)
+                        self.processing_episodes[topic] = time.time()
                     reducer.send(topic)
 
                 elif msg == "done":
-                    self.known_episodes.pop(topic, None)
+                    self.processing_episodes.pop(topic, None)
                     self.logger.debug("Reducer said he finished: "+topic)
                     reducer.send("OK")
 
                 elif msg == "heartbeat":
-                    self.known_episodes[topic] = time.time()
+                    self.processing_episodes[topic] = time.time()
                     self.logger.debug("Renewing watchdog for topic "+topic)
                     reducer.send("OK")
 
-            # check heartbeat reschedule if necessary
+            # check heartbeat
             # if we didn't hear from the reducer within 10 seconds assume it died
             toc = time.time()
-            for key in self.known_episodes.keys():
-                if self.known_episodes[key] == 0:
-                    pass
-
-                elif toc - self.known_episodes[key] > 10:
+            for key in self.processing_episodes.keys():
+                if toc - self.processing_episodes[key] > int(os.environ["TOPIC_TIMEOUT"]):
                     self.logger.warn("Rescheduling topic %s. Potentially a reducer died.")
                     #self.pending_episodes.append(key)
-                    self.known_episodes.pop(key, 'None')
+                    self.processing_episodes.pop(key, 'None')
 
 
     def run_device(self):
