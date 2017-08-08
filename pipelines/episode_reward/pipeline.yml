@@ -34,6 +34,7 @@ services:
             - REDUCER_REQUEST_ADDRESS=tcp://shuffle:5000
             - MAPPER_REPLY_ADDRESS=tcp://shuffle:6500
             - SCHEDULER_ADDRESS=tcp://shuffle:8591
+            - DROP_DELAY=5
         networks:
             - default
             - swarm
