@@ -109,8 +109,8 @@ while not zmq.Context.instance().closed:
             active_topic = None
 
     elif active_topic is not None:
-        if time.time() - active_topic.last_update > os.environ["DROP_DELAY"]:
-            logger.error(("%d seconds without update. Dropping Task."+
+        if time.time() - active_topic.last_update > int(os.environ["DROP_DELAY"]):
+            logger.error(("%s seconds without update. Dropping Task."+
                 " This is usually caused by a dropped message in the pipe.")
                 % (os.environ["DROP_DELAY"]))
             active_topic = None
