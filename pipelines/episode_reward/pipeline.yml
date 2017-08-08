@@ -27,6 +27,7 @@ services:
             - REDUCER_REQUEST_ADDRESS_IN=tcp://*:5000
             - MAPPER_REPLY_ADDRESS_OUT=tcp://*:6500
             - SCHEDULER_ADDRESS_OUT=tcp://*:8591
+            - TOPIC_TIMEOUT=300
     reduce:
         image: firefoxmetzger/rlunit-episode-reward-reducer
         environment:
@@ -34,7 +35,7 @@ services:
             - REDUCER_REQUEST_ADDRESS=tcp://shuffle:5000
             - MAPPER_REPLY_ADDRESS=tcp://shuffle:6500
             - SCHEDULER_ADDRESS=tcp://shuffle:8591
-            - DROP_DELAY=10
+            - DROP_DELAY=120
         networks:
             - default
             - swarm
