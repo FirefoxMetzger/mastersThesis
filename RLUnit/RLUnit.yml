@@ -7,6 +7,7 @@ services:
             - QUEUE_ADDRESS=tcp://distributor:5000
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
             - HUB_ADDRESS=tcp://hub:5555
+            - FORCE_INSERT=120
         networks:
             - swarm
     distributor:
@@ -14,6 +15,7 @@ services:
         environment:
             - QUEUE_ADDRESS=tcp://*:5000
             - DB_ADDRESS=mysql://root:password@mysql/reinforcement_learning
+            - RESCHEDULE_TIME=300
         networks:
             - swarm
     hub:

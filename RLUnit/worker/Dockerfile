@@ -18,6 +18,7 @@ ENV LOGGING_LEVEL=INFO
 ENV QUEUE_ADDRESS=tcp://127.0.0.1:5000
 ENV HUB_ADDRESS=tcp://127.0.0.1:4444
 ENV DB_ADDRESS=mysql://root:password@127.0.0.1/reinforcement_learning
+ENV FORCE_INSERT=120
 
 COPY RLUnit/worker/ /app
 CMD ["python", "main.py"]
