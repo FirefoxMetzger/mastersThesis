@@ -133,8 +133,16 @@ while not zmq.Context.instance().closed:
         # work is submitted
         storage_counter += 1
         if storage_counter >= storage_cap:
+
             if episode_buffer:
+                try:
+                    EpisodeReward._meta.database.close()
+                except:
+                    pass # was already disconnected
+
+                EpisodeReward._meta.database.connect()
                 logger.info("Storing %d new accumulated rewards" % len(episode_buffer))
                 EpisodeReward.insert_many(episode_buffer).upsert().execute()
+                EpisodeReward._meta.database.close()
             episode_buffer = list()
             storage_counter = 0
