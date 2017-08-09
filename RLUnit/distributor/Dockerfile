@@ -14,6 +14,7 @@ RUN python setup.py install && cd .. && rm -rf /RLUnit_database_install
 # Base config
 ENV LOGGING_LEVEL=INFO
 ENV TASK_ADDRESS=tcp://*:5000
+ENV RESCHEDULE_TIME=120
 
 # The actual container files
 WORKDIR /app
