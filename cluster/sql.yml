@@ -12,13 +12,17 @@ services:
         networks:
             - default
             - swarm
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == DP00262-1
     myadmin:
         image: phpmyadmin/phpmyadmin
         environment:
-            - PMA_HOST=mysql 
+            - PMA_HOST=mysql
         ports:
             - 8080:80
-            
+
 volumes:
     mysql_data:
         external:
