@@ -29,7 +29,7 @@ context = zmq.Context()
 def refill_queue():
     for experiment in Experiment.select():
         if experiment.id not in scheduled:
-            q.put( (experiment.id,experiment.id) )
+            q.put( (experiment.trial.id, experiment.id) )
         elif (time.time() - scheduled[experiment.id]
                 > int(os.environ["RESCHEDULE_TIME"])):
             q.put( (experiment.id,experiment.id) )
