@@ -12,10 +12,7 @@ services:
         networks:
             - default
             - swarm
-        deploy:
-            placement:
-                constraints:
-                    - node.hostname == DP00262-1
+
     myadmin:
         image: phpmyadmin/phpmyadmin
         environment:
