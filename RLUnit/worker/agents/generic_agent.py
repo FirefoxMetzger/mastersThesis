@@ -1,5 +1,11 @@
 import random
 
+spec = {
+    "name":"RandomAgent",
+    "source":"https://raw.githubusercontent.com/FirefoxMetzger/mastersThesis/master/RLUnit/worker/agents/generic_agent.py",
+    "num_trials":10
+}
+
 class RandomAgent(object):
     def __init__(self):
         self.random = random.Random()
